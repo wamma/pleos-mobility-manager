@@ -1,0 +1,37 @@
+plugins { id 'com.android.application' }
+
+def signingFile = System.getenv('PLEOS_SIGNING_PROPERTIES')
+def releaseKeys = new Properties()
+if (signingFile) file(signingFile).withInputStream { releaseKeys.load(it) }
+
+android {
+    namespace 'local.pleos.idealab'
+    compileSdk 35
+    defaultConfig { applicationId 'local.pleos.idealab'; minSdk 28; targetSdk 34; versionCode 1; versionName '0.1.0' }
+    buildFeatures { buildConfig true }
+    signingConfigs {
+        release {
+            if (signingFile) {
+                storeFile file(releaseKeys['storeFile']); storePassword releaseKeys['storePassword']
+                keyAlias releaseKeys['keyAlias']; keyPassword releaseKeys['keyPassword']
+            }
+        }
+    }
+    buildTypes {
+        release { minifyEnabled false; debuggable false; if (signingFile) signingConfig signingConfigs.release }
+    }
+    flavorDimensions += 'idea'
+    productFlavors {
+        mobility { dimension 'idea'; applicationIdSuffix '.mobility'; resValue 'string', 'app_name', '내 이동 매니저'; buildConfigField 'String', 'IDEA', '"mobility"' }
+        camping { dimension 'idea'; applicationIdSuffix '.camping'; resValue 'string', 'app_name', '차박 운영 매니저'; buildConfigField 'String', 'IDEA', '"camping"' }
+        trouble { dimension 'idea'; applicationIdSuffix '.trouble'; resValue 'string', 'app_name', '내 차 문제 해결사'; buildConfigField 'String', 'IDEA', '"trouble"' }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+    sourceSets { main.assets.srcDirs = [layout.buildDirectory.dir('generated/demoAssets')] }
+}
+
+tasks.register('copyDemoAssets', Copy) {
+    from('../..') { include 'index.html', 'styles.css', 'src/*.js' }
+    into layout.buildDirectory.dir('generated/demoAssets')
+}
+tasks.named('preBuild').configure { dependsOn 'copyDemoAssets' }
