@@ -7,7 +7,7 @@ sdk=Path(os.environ.get('ANDROID_HOME',Path.home()/'Library/Android/sdk'))
 bt=sdk/'build-tools/35.0.0'; evidence=root/'submission/evidence';evidence.mkdir(parents=True,exist_ok=True)
 rows=[]
 for idea,name in [('mobility','내이동매니저')]:
- apk=root/'apk/pleos-mobility-manager-v0.1.0.apk'; package=f'local.pleos.idealab.{idea}'
+ apk=root/'apk/더 많은 사이_내이동매니저_release.apk'; package=f'local.pleos.idealab.{idea}'
  signature=subprocess.check_output([str(bt/'apksigner'),'verify','--verbose','--print-certs',str(apk)],text=True)
  manifest=subprocess.check_output([str(bt/'aapt'),'dump','badging',str(apk)],text=True)
  assert f"name='{package}'" in manifest
